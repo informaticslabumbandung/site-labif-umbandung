@@ -255,7 +255,10 @@
                             });
 
                             console.log('[Peminjaman] Filtered:', filtered.length, 'rows'); // DEBUG
-                            filtered.sort((a, b) => new Date(b.tanggalKegiatan) - new Date(a.tanggalKegiatan));
+                            
+                            // Mengurutkan berdasarkan waktu data masuk/disubmit (terbaru di atas)
+                            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                            
                             renderTable(filtered);
                         }
 
@@ -412,7 +415,8 @@
                     if (result?.success) {
                         allData = allData.filter(d => String(d.rowId) !== String(rowId));
                         applyFilters();
-                        Swal.fire({ icon: 'success', title: 'Dihapus', timer: 2000, showConfirmButton: false });
+                        Swal.fire({ icon: 'success', title: 'Dihapus', timer: 2000, showConfirmButton: false })
+                            .then(() => window.location.reload());
                     } else {
                         Swal.fire({ icon: 'error', title: 'Gagal Hapus', text: result?.error || 'Unknown error' });
                     }

@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Peminjaman Lab IF | UM Bandung</title>
-    
+   
     <!-- Bootstrap & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" integrity="sha384-ISVEfRng8Op3e05C6sGn0g+2Dx1ksAPwbTbkf3mNMmYLxY883tj0WZV+vPNjwvt6" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
-    
+   
+    <!-- [PERBAIKAN 1]: Tambahkan CSS SweetAlert2 agar popup bisa muncul -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+   
     <style>
         :root { 
             --umb-blue: #002d5d; 
@@ -21,7 +24,7 @@
             --bg-light: #f8faff; 
             --text-gray: #4b5563;
         }
-        
+       
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: var(--bg-light); 
@@ -31,7 +34,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
+       
         /* Navbar Modern */
         .navbar { 
             background: rgba(0, 45, 93, 0.98); 
@@ -59,7 +62,7 @@
         }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; }
         .nav-link:hover, .nav-link.active { color: var(--umb-gold) !important; }
-
+       
         /* Header Halaman (Serasi) */
         .page-header {
             background: linear-gradient(to right, rgba(0,45,93,0.95), rgba(0,45,93,0.75)), url('../lab-if.jpeg');
@@ -75,14 +78,14 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             letter-spacing: -1px;
         }
-
+       
         /* Wrapper Overlap */
         .overlap-wrapper {
             margin-top: -60px;
             position: relative;
             z-index: 10;
         }
-
+       
         /* Info Cards Peminjaman */
         .card-info { 
             border-radius: 16px; 
@@ -102,9 +105,9 @@
             font-weight: 700; 
             margin-bottom: 15px; 
             border-bottom: 1px solid #f0f0f0; 
-            padding-bottom: 15px; 
+            padding-bottom: 15px;
         }
-        
+       
         /* Table Styling */
         .card-table { 
             border-radius: 16px; 
@@ -115,7 +118,7 @@
         }
         thead { background: var(--umb-blue); color: white; }
         .table-hover tbody tr:hover { background-color: #f8faff; }
-
+       
         /* Modal Styling */
         #formModal .modal-content {
             border-radius: 20px;
@@ -134,7 +137,7 @@
             border-color: var(--umb-blue);
             box-shadow: 0 0 0 0.25rem rgba(0, 45, 93, 0.1);
         }
-
+       
         /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, var(--umb-blue) 0%, #004a99 100%) !important;
@@ -157,13 +160,13 @@
         }
         .badge.bg-primary { background-color: var(--umb-blue) !important; font-weight: 600; }
         .text-primary { color: var(--umb-blue) !important; }
-
+       
         /* Footer */
         .main-footer { background-color: #081627; color: #ffffff; padding: 70px 0 0; margin-top: auto; }
         .footer-title { color: var(--umb-gold); font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
         .footer-link { color: rgba(255,255,255,0.6); text-decoration: none; display: block; margin-bottom: 12px; transition: 0.3s; font-size: 0.9rem;}
         .footer-link:hover { color: var(--umb-gold); padding-left: 8px; }
-        
+       
         .social-btn {
             display: inline-flex; align-items: center; justify-content: center;
             width: 38px; height: 38px;
@@ -174,16 +177,16 @@
             text-decoration: none;
         }
         .social-btn:hover { background: var(--umb-gold); color: var(--umb-blue); transform: translateY(-3px); }
-
+       
         .copyright-area { background: #050e1a; padding: 25px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; }
     </style>
-
-    <!-- Security headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://docs.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.datatables.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://datastudio.google.com https://lookerstudio.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net https://docs.google.com; base-uri 'self'; form-action 'self';">
+   
+    <!-- Security headers (Updated with SweetAlert CSS support) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://docs.google.com https://accounts.google.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.datatables.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://datastudio.google.com https://lookerstudio.google.com https://www.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net https://docs.google.com https://www.google.com https://www.gstatic.com; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 </head>
 <body>
-
+   
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
@@ -194,24 +197,24 @@
                     <small class="opacity-75" style="font-size: 0.75rem; font-weight: 500;">UNIVERSITAS MUHAMMADIYAH BANDUNG</small>
                 </div>
             </a>
-
+           
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
+           
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto py-3 py-lg-0">
                     <li class="nav-item"><a class="nav-link" href="../index.html">HOME</a></li>
                     <li class="nav-item"><a class="nav-link" href="../info/">INFO</a></li>
                     <li class="nav-item"><a class="nav-link" href="../jadwal/">JADWAL</a></li>
                     <li class="nav-item"><a class="nav-link" href="../fasilitas/">FASILITAS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../peminjaman/">PEMINJAMAN</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="../peminjaman/">PEMINJAMAN</a></li>
                     <li class="nav-item"><a class="nav-link" href="../bebas-lab/">BEBAS LAB</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-
+   
     <!-- HEADER HALAMAN -->
     <header class="page-header">
         <div class="container">
@@ -219,11 +222,11 @@
             <p class="fs-5 mb-0 max-w-2xl mx-auto opacity-75">Layanan pengajuan penggunaan fasilitas terpadu Laboratorium Informatika.</p>
         </div>
     </header>
-
+   
     <!-- KONTEN UTAMA (OVERLAP) -->
     <section class="pb-5 flex-grow-1">
         <div class="container overlap-wrapper">
-            
+           
             <!-- Cards Informasi Prosedur -->
             <div class="row g-4 mb-5">
                 <!-- Card 1 -->
@@ -242,7 +245,7 @@
                         </div>
                     </div>
                 </div>
-
+               
                 <!-- Card 2 -->
                 <div class="col-md-4">
                     <div class="card-info" style="border-top: 4px solid var(--umb-gold);">
@@ -251,7 +254,7 @@
                             <div class="d-flex justify-content-between mb-2"><span>Senin - Kamis</span><b class="text-dark">08:00 - 16:00</b></div>
                             <div class="d-flex justify-content-between mb-2"><span>Jumat</span><b class="text-dark">08:00 - 16:00</b></div>
                             <div class="d-flex justify-content-between mb-3"><span>Sabtu</span><b class="text-dark">08:00 - 14:00</b></div>
-                            
+                           
                             <div class="bg-light p-2 rounded mb-3 border-start border-3 border-warning">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span><i class="fas fa-utensils me-1"></i> Istirahat (Sen-Kam):</span>
@@ -268,7 +271,7 @@
                         </div>
                     </div>
                 </div>
-
+               
                 <!-- Card 3 -->
                 <div class="col-md-4">
                     <div class="card-info" style="border-top: 4px solid #dc3545;">
@@ -284,7 +287,7 @@
                     </div>
                 </div>
             </div>
-
+           
             <!-- Tabel Status Peminjaman -->
             <div class="card-table">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
@@ -301,16 +304,16 @@
                         </button>
                     </div>
                 </div>
-
+               
                 <div class="alert alert-light border-0 small mb-4 p-3 text-muted" style="background-color: #f8faff; border-left: 4px solid var(--umb-blue) !important;">
                     <i class="fas fa-info-circle me-2 text-primary"></i> <strong>Pemberitahuan:</strong> Pada form pengajuan di bawah, cukup <i>upload</i> Surat Permohonan saja (Format PDF). Dokumen Surat Komitmen dibawa dalam bentuk fisik saat hari-H.
                 </div>
-
+               
                 <div id="loading" class="text-center py-5">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
                     <p class="mt-3 text-muted fw-medium">Memuat data pengajuan...</p>
                 </div>
-                
+               
                 <div class="table-responsive">
                     <table id="tabel-peminjaman" class="table table-hover align-middle w-100" style="display:none; font-size: 0.95rem;">
                         <thead><tr id="table-header"></tr></thead>
@@ -320,7 +323,7 @@
             </div>
         </div>
     </section>
-
+   
     <!-- FORM MODAL PENGAJUAN -->
     <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered"> 
@@ -356,15 +359,19 @@
                                     <i class="fas fa-times-circle me-1"></i> Hanya boleh angka (0-9)!
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Tanggal Peminjaman</label>
                                 <input type="date" name="tanggal" class="form-control" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Kembali</label>
+                                <input type="date" name="tanggalKembali" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
                                 <label class="form-label">Jam Mulai</label>
                                 <input type="time" name="waktuMulai" class="form-control" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Jam Selesai</label>
                                 <input type="time" name="waktuSelesai" class="form-control" required>
                             </div>
@@ -385,7 +392,7 @@
             </div>
         </div>
     </div>
-
+   
     <!-- FOOTER -->
     <footer class="main-footer">
         <div class="container">
@@ -411,7 +418,6 @@
                         <a href="#" class="social-btn"><i class="fas fa-globe"></i></a>
                     </div>
                 </div>
-
                 <div class="col-lg-2 col-md-4 mt-5 mt-lg-0">
                     <h6 class="footer-title">Navigasi</h6>
                     <a href="../index.html" class="footer-link">Home</a>
@@ -420,7 +426,7 @@
                     <a href="../fasilitas/" class="footer-link">Fasilitas</a>
                     <a href="../peminjaman/" class="footer-link">Peminjaman</a>
                 </div>
-
+               
                 <div class="col-lg-3 col-md-4 mt-5 mt-lg-0">
                     <h6 class="footer-title">Layanan Mahasiswa</h6>
                     <a href="../bebas-lab/" class="footer-link">Bebas Laboratorium</a>
@@ -428,7 +434,7 @@
                     <a href="https://lms.umbandung.ac.id/login/index.php" target="_blank" class="footer-link">E-Learning UMB</a>
                     <a href="#" class="footer-link">Pusat Bantuan Lab</a>
                 </div>
-
+               
                 <div class="col-lg-3 col-md-4 mt-5 mt-lg-0">
                     <h6 class="footer-title">Kontak Kami</h6>
                     <ul class="list-unstyled text-white-50 small" style="line-height: 1.8;">
@@ -444,91 +450,68 @@
                 <span class="copyright-text">
                     &copy; <span id="tahun-otomatis"></span> Teknik Informatika UM Bandung. All rights reserved.
                 </span>
-                <span class="made-by">
-                    Developed by <strong>Laboratory of Informatics</strong>
-                </span>
             </div>
         </div>
     </footer>
-
-    <!-- Scripts DataTables, SweetAlert DLL -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-            <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js" integrity="sha384-edQnMujp90eoACbp4sS9zj/0dMW+mjTJFxCNeW0hM7rVy4OutMVBq6ec4axiLP9U" crossorigin="anonymous"></script>
-            <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js" integrity="sha384-ON66nBewQ67SNHiJWBO8f7ldsYeQ6wShDTaaikVGjNyNxC7P2rTge/Gf77mL/Ijt" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js" integrity="sha384-hW8ZCQHtRH+nVOAkHZ4amZvYsAtKn1ZOvMV6dNag1Rb1thWmLZMBKTRxFV0cOxiK" crossorigin="anonymous"></script>
-        <script src="https://www.google.com/recaptcha/api.js?render=6LergVktAAAAAMpfKW0u3wH-VE-eYfFgqlenggJX"></script>
-        <script>
-            // reCAPTCHA v3 helper
-            function getRecaptchaToken(action) {
-                return new Promise(resolve => {
-                    grecaptcha.ready(() => {
-                        grecaptcha.execute('6LergVktAAAAAMpfKW0u3wH-VE-eYfFgqlenggJX', {action}).then(resolve);
-                    });
-                });
-            }
-        </script>
+   
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Script SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LergVktAAAAAMpfKW0u3wH-VE-eYfFgqlenggJX"></script>
     
     <script>
-        // Logika Update Tahun & Active Nav Link Modern
-        document.getElementById('tahun-otomatis').textContent = new Date().getFullYear();
-        document.addEventListener("DOMContentLoaded", function() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll(".nav-link");
-
-            navLinks.forEach(link => {
-                const href = link.getAttribute("href");
-                link.classList.remove("active");
-
-                const cleanHref = href.replace(/\.\.\//g, '');
-                if (currentPath === "/" || currentPath === "/index.html") {
-                    if (href === "../" || href === "/" || href === "index.html" || href === "../index.html") {
-                        link.classList.add("active");
-                    }
-                } else if (cleanHref !== "" && currentPath.includes(cleanHref)) {
-                    link.classList.add("active");
-                }
+        // reCAPTCHA v3 helper
+        function getRecaptchaToken(action) {
+            return new Promise(resolve => {
+                grecaptcha.ready(() => {
+                    grecaptcha.execute('6LergVktAAAAAMpfKW0u3wH-VE-eYfFgqlenggJX', {action}).then(resolve);
+                });
             });
-        });
+        }
 
+        document.getElementById('tahun-otomatis').textContent = new Date().getFullYear();
+       
         // =========================================================
-        // SCRIPT INTI GOOGLE SHEETS & FORM (TIDAK ADA YANG DIUBAH)
+        // SCRIPT INTI GOOGLE SHEETS & FORM
         // =========================================================
         const SHEET_ID = '1Kd6te5CvI4rdn05G1taE9uaUApYxJtJdqmQeqnrut1A';
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS5rA-hZfqwVJo4WSIn7xcvVk5hSznypesheqt25c5b56uCwWTzJerzAMoC0S-u4t8/exec"; 
-
-        // 1. AMBIL DATA
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS5rA-hZfqwVJo4WSIn7xcvVk5hSznypesheqt25c5b56uCwWTzJerzAMoC0S-u4t8/exec";
+       
+        // 1. AMBIL DATA DARI SHEET (Google Visualization API)
         function ambilData() {
             const script = document.createElement('script');
             script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:prosesData`;
             document.body.appendChild(script);
         }
-
+       
         window.prosesData = function(data) {
             try {
-                const kolomTarget = ["Timestamp","Nama Kegiatan", "Nama PIC", "Tanggal Kegiatan", "Waktu Mulai Kegiatan", "Waktu Selesai Kegiatan", "Keterangan", "Status Kegiatan"];
+                const kolomTarget = ["Timestamp","Nama Kegiatan", "Nama PIC", "Tanggal Kegiatan", "Tanggal Kembali", "Waktu Mulai Kegiatan", "Waktu Selesai Kegiatan", "Keterangan", "Status Kegiatan"];
                 const allCols = data.table.cols;
                 const allRows = data.table.rows;
                 const indeksTarget = [];
                 let hHtml = '';
-                
+               
                 kolomTarget.forEach(n => {
                     const idx = allCols.findIndex(c => c.label && c.label.trim().toLowerCase() === n.toLowerCase());
-                    if (idx !== -1) { indeksTarget.push({ idx: idx, label: n }); hHtml += `<th>${n}</th>`; }
+                    if (idx !== -1) { 
+                        indeksTarget.push({ idx: idx, label: n }); 
+                        hHtml += `<th>${n}</th>`; 
+                    }
                 });
                 document.getElementById('table-header').innerHTML = hHtml;
-
+               
                 let bHtml = '';
                 allRows.forEach(row => {
                     if (!row.c || !row.c[indeksTarget[0].idx]) return;
                     bHtml += '<tr>';
                     indeksTarget.forEach(t => {
                         let val = row.c[t.idx] ? (row.c[t.idx].f || row.c[t.idx].v || '') : '';
-                        
-                        // FORMAT TIMESTAMP
-                        if (t.label === "Timestamp" && val !== "") { }
-                        
-                        // STATUS BADGE
+                       
                         if (t.label === "Status Kegiatan") {
                             let s = val.toString().toLowerCase();
                             let cls = s.includes("selesai") || s.includes("setuju") || s.includes("diterima") ? "bg-success" :
@@ -536,15 +519,12 @@
                                       s.includes("batal") || s.includes("tolak") || s.includes("reject") ? "bg-danger" : "bg-secondary";
                             val = `<span class="badge ${cls} shadow-sm px-3 py-2" style="min-width: 90px; border-radius: 8px;">${val.toUpperCase()}</span>`;
                         }
-
-                        // KETERANGAN BOX
+                       
                         if (t.label === "Keterangan") {
                             let ket = val.toString().toLowerCase();
-                            if (ket.includes("diterima") || ket.includes("acc") || ket.includes("ambil")) {
+                            if (ket.includes("diterima") || ket.includes("acc")) {
                                 val = `<div class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i> ${val}</div>`;
-                            } else if (ket.includes("hubungi laboran") || ket.includes("antre") || ket.includes("pending")) {
-                                val = `<div class="badge bg-info text-white p-2" style="border-radius: 8px;"><i class="fas fa-info-circle me-1"></i> ${val}</div>`;
-                            } else if (ket.includes("ditolak") || ket.includes("gagal") || ket.includes("penuh")) {
+                            } else if (ket.includes("ditolak") || ket.includes("gagal")) {
                                 val = `<div class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i> ${val}</div>`;
                             } else {
                                 val = `<div class="text-muted small fst-italic">${val}</div>`;
@@ -554,88 +534,77 @@
                     });
                     bHtml += '</tr>';
                 });
-
+               
                 document.getElementById('table-body').innerHTML = bHtml;
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('tabel-peminjaman').style.display = 'table';
-                
+               
                 if (!$.fn.DataTable.isDataTable('#tabel-peminjaman')) {
                     $('#tabel-peminjaman').DataTable({ 
-                        "order": [[ 0, "desc" ]], 
+                        "order": [[0, "desc"]], 
                         "language": {"search": "CARI:"} 
                     });
                 }
             } catch (e) { console.error(e); }
         };
-
-        // 2. VALIDASI INPUT & FILE
+       
         $(document).ready(function() {
             ambilData();
-
-            // Validasi WA
-            document.getElementById('whatsappInput').addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-                const feedback = document.getElementById('wa-feedback');
-                feedback.style.display = /[^0-9]/.test(this.value) ? 'block' : 'none';
-                this.classList.toggle('is-invalid', feedback.style.display === 'block');
-            });
-
-            // Validasi File 
-            document.getElementById('fileInput').onchange = function() {
-                const file = this.files[0];
-                if (file && file.size > 2 * 1024 * 1024) {
-                    Swal.fire('File Terlalu Besar!', 'Maksimal ukuran file adalah 2MB bos.', 'error');
-                    this.value = "";
-                }
-            };
-
-            // Validasi Email
-            const emailInput = document.getElementById('emailInput');
-            emailInput.addEventListener('blur', function() {
-                this.value = this.value.trim();
-                const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const isValid = pattern.test(this.value) || this.value === "";
-                document.getElementById('email-feedback').style.display = isValid ? 'none' : 'block';
-                this.classList.toggle('is-invalid', !isValid);
-            });
         });
-
+       
         // 3. SUBMIT FORM
-                document.getElementById('peminjamanForm').onsubmit = async function(e) {
-                    e.preventDefault();
-                    const file = document.getElementById('fileInput').files[0];
-            
-                    if (!file) {
-                        Swal.fire('Waduh!', 'File BAP Sidang wajib diupload bos.', 'warning');
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: 'Sedang Memproses...',
-                        text: 'Mohon tunggu sebentar, data sedang dikirim ke server.',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
-
-                    const dataObj = Object.fromEntries(new FormData(this).entries());
-                                        const reader = new FileReader();
-
-                                        reader.onload = function(ev) {
-                                            dataObj.myFile = { data: ev.target.result.split(',')[1], name: file.name, mimeType: file.type };
+        document.getElementById('peminjamanForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const file = document.getElementById('fileInput').files[0];
+           
+            if (!file) {
+                Swal.fire('Peringatan', 'Surat permohonan wajib diupload.', 'warning');
+                return;
+            }
+           
+            Swal.fire({
+                title: 'Sedang Memproses...',
+                text: 'Mohon tunggu sebentar, data sedang dikirim ke server.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+           
+            const dataObj = Object.fromEntries(new FormData(this).entries());
+            const reader = new FileReader();
+           
+            reader.onload = function(ev) {
+                // Konversi file menjadi base64 text
+                dataObj.myFile = { 
+                    data: ev.target.result.split(',')[1], 
+                    name: file.name, 
+                    mimeType: file.type 
+                };
                
-                                            // Get reCAPTCHA token
-                                            getRecaptchaToken('submit_peminjaman').then(token => {
-                                                dataObj.recaptchaToken = token;
-                                                fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(dataObj), mode: 'no-cors' })
-                                                .then(() => {
-                                                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Silakan cek status di tabel secara berkala.', timer: 3000, showConfirmButton: false })
-                                                    .then(() => { location.reload(); });
-                                                })
-                                                .catch(err => { Swal.fire('Gagal!', err.message, 'error'); });
-                                            });
-                                        };
-                                        reader.readAsDataURL(file);
-                                    };
+                getRecaptchaToken('submit_peminjaman').then(token => {
+                    dataObj.recaptchaToken = token;
+                    
+                    fetch(WEB_APP_URL, { 
+                        method: "POST", 
+                        body: JSON.stringify(dataObj), 
+                        mode: 'no-cors' // Mode ini membuat Javascript mengabaikan response error dari server
+                    })
+                    .then(() => {
+                        // Karena no-cors, script akan SELALU masuk ke sini meskipun Google Script error.
+                        // Anda harus memastikan kode Google Script (Code.gs) berfungsi 100%.
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Terkirim!',                             
+                            timer: 3000, 
+                            showConfirmButton: false 
+                        }).then(() => { location.reload(); });
+                    })
+                    .catch(err => { 
+                        Swal.fire('Koneksi Gagal!', err.message, 'error'); 
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        };
     </script>
 </body>
 </html>

@@ -408,62 +408,41 @@
                         </div>
         </div>
 
-        <!-- Recent Activities -->
-                <div class="row mt-4">
-                    <div class="col-lg-8">
-                        <div class="table-container">
-                            <h5>Peminjaman Terbaru</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover w-100">
-                                    <thead>
-                                        <tr>
-                                            <th>Tanggal</th>
-                                            <th>Nama Kegiatan</th>
-                                            <th>PIC</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="recentActivityTable">
-                                                                            <tr>
-                                                                                <td colspan="4" class="text-center text-muted">Belum ada data</td>
-                                                                            </tr>
-                                                                        </tbody>
-                                </table>
+        <!-- Status Sistem Centered -->
+        <div class="row mt-4 justify-content-center">
+            <div class="col-lg-8">
+                <div class="table-container">
+                    <h5><i class="fas fa-server me-2" style="color: var(--umb-blue);"></i> Status Sistem</h5>
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Sistem Peminjaman</span>
+                            <span class="badge bg-primary system-status-badge">Normal</span>
+                        </div>
+                        <div class="progress mb-4" style="height: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 95%"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Sistem Bebas Lab</span>
+                            <span class="badge bg-primary system-status-badge">Normal</span>
+                        </div>
+                        <div class="progress mb-4" style="height: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 90%"></div>
+                        </div>
+
+                        <div class="alert alert-info mt-5 border-0 shadow-sm" style="background-color: #e8f4fd;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle fa-2x me-3 text-primary"></i>
+                                <div>
+                                    <strong>Semua Layanan Beroperasi Secara Normal.</strong><br>
+                                    <small class="text-muted">Terakhir diperbarui: <span id="lastUpdate" class="fw-bold">Hari ini</span></small>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-lg-4">
-                                            <div class="table-container">
-                                                <h5>Status Sistem</h5>
-                                                <div class="mt-4">
-                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <span>Sistem Peminjaman</span>
-                                                        <span class="badge bg-primary system-status-badge">Normal</span>
-                                                    </div>
-                                                    <div class="progress mb-4" style="height: 8px;">
-                                                        <div class="progress-bar" role="progressbar" style="width: 95%"></div>
-                                                    </div>
-
-                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                        <span>Sistem Bebas Lab</span>
-                                                        <span class="badge bg-primary system-status-badge">Normal</span>
-                                                    </div>
-                                                    <div class="progress mb-4" style="height: 8px;">
-                                                        <div class="progress-bar" role="progressbar" style="width: 90%"></div>
-                                                    </div>
-
-                                                    <div class="alert alert-info mt-4">
-                                                        <small>
-                                                            <i class="fas fa-info-circle me-2"></i>
-                                                            <strong>Info:</strong> Sistem berjalan normal. 
-                                                            Terakhir diperbarui: <span id="lastUpdate">Hari ini</span>
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                 </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -524,9 +503,6 @@
                                             ['pending','diproses','proses'].includes((p.statusKegiatan||p.status||'').toLowerCase())
                                         ).length;
                                         updateStatCard('pendingRequests', pendingCount);
-
-                                        // Update tabel aktivitas terbaru (hanya Peminjaman & Bebas Lab)
-                                        updateRecentActivity(beritaData, peminjamanData, bebaslabData);
                 
                     // Update status sistem
                     updateSystemStatus(beritaData, peminjamanData, bebaslabData);
@@ -546,44 +522,6 @@
                     setTimeout(() => { el.style.opacity = '1'; }, 100);
                 }
             }
-
-            function updateRecentActivity(berita, peminjaman, bebaslab) {
-                            const tbody = document.querySelector('#recentActivityTable tbody');
-                            if (!tbody) return;
-
-                            // Hanya Peminjaman & Bebas Lab (Berita di-input admin sendiri)
-                            const allActivity = [
-                                ...peminjaman.map(item => ({
-                                    tanggal: item.tanggalKegiatan || item.tanggal,
-                                    kegiatan: item.namaKegiatan || item.kegiatan || '-',
-                                    pic: item.namaPIC || item.pic || '-',
-                                    status: item.statusKegiatan || item.status || 'Pending',
-                                    type: 'peminjaman'
-                                })),
-                                ...bebaslab.map(item => ({
-                                    tanggal: item.tanggal,
-                                    kegiatan: `Bebas Lab - ${item.nama || item.nim}`,
-                                    pic: item.nim || '-',
-                                    status: item.status || 'DIPROSES',
-                                    type: 'bebaslab'
-                                }))
-                            ];
-
-                            // Sort by tanggal desc (terbaru dulu)
-                            allActivity.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-                            // Ambil 5 terbaru
-                            const recent = allActivity.slice(0, 5);
-
-                            tbody.innerHTML = recent.map(item => `
-                                <tr>
-                                    <td>${gsAPI.formatDate(item.tanggal)}</td>
-                                    <td>${item.kegiatan}</td>
-                                    <td>${item.pic}</td>
-                                    <td><span class="badge ${gsAPI.getStatusBadgeClass(item.status)}">${item.status}</span></td>
-                                </tr>
-                            `).join('');
-                        }
 
             function updateSystemStatus(berita, peminjaman, bebaslab) {
                             // Hitung persentase "active" per modul (hanya Peminjaman & Bebas Lab)

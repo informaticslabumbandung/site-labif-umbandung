@@ -57,27 +57,51 @@
 
 <script>
 /* ── konfigurasi sederhana ── */
-const VALID_USER = 'admin';
-const VALID_PASS = 'RahasiaAdmin2025!';   // ganti di sini kalau mau password lain
+// PASTIKAN URL INI ADALAH URL DARI WEB APP GOOGLE APPS SCRIPT ANDA
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYFyDan7vbEVKPCuIcNMHwEEr-sQKxu8qxzvgiOmiICY3qxU_7qmch5c3-9f-2DK9a/exec';
 
 const form = document.getElementById('loginForm');
 const err  = document.getElementById('err');
+const btnSubmit = document.querySelector('button[type="submit"]');
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   err.classList.add('d-none');
 
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pwd').value;
 
-  if (u !== VALID_USER) return showErr('Username salah');
-  if (p !== VALID_PASS) return showErr('Password salah');
+  if (!u || !p) return showErr('Harap isi username dan password');
 
-  // login sukses – set localStorage agar dashboard bisa cek
-  localStorage.setItem('admin_logged_in', 'true');
-  localStorage.setItem('admin_username', u);
-  localStorage.setItem('login_time', Date.now().toString());
-  location.href = 'dashboard.html';
+  // Loading state
+  const originalText = btnSubmit.innerHTML;
+  btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
+  btnSubmit.disabled = true;
+
+  try {
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      // Jangan pakai 'mode: no-cors', karena kita perlu baca respons JSON!
+      body: JSON.stringify({ action: "login", username: u, password: p })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      localStorage.setItem('admin_logged_in', 'true');
+      localStorage.setItem('admin_username', u);
+      localStorage.setItem('admin_token', result.token);
+      localStorage.setItem('login_time', Date.now().toString());
+      location.href = 'dashboard.html';
+    } else {
+      showErr(result.message || 'Login gagal');
+    }
+  } catch (error) {
+    showErr('Terjadi kesalahan jaringan atau koneksi.');
+  } finally {
+    btnSubmit.innerHTML = originalText;
+    btnSubmit.disabled = false;
+  }
 });
 
 function showErr(msg){
