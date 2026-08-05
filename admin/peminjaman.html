@@ -41,8 +41,7 @@
         @media (max-width: 992px) { #sidebar { margin-left: -280px; } #content { margin-left: 0; } }
     </style>
 
-    <!-- Security headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://datastudio.google.com https://lookerstudio.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net https://docs.google.com; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.datatables.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.datatables.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://datastudio.google.com https://lookerstudio.google.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://cdn.jsdelivr.net https://docs.google.com; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 </head>
 <body>
@@ -135,28 +134,34 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/utils.js"></script>
 
     <script>
-        // ─────────────────────────────────────────────
-        // PEMINJAMAN MANAGER - CLEAN IMPLEMENTATION
-        // ─────────────────────────────────────────────
+        // Definisi langsung gsAPI agar tidak terjadi error gsAPI is not defined
+        const gsAPI = {
+            appsScriptURL: 'https://script.google.com/macros/s/AKfycbzYFyDan7vbEVKPCuIcNMHwEEr-sQKxu8qxzvgiOmiICY3qxU_7qmch5c3-9f-2DK9a/exec'
+        };
+
         const PeminjamanManager = (function() {
-            const API_URL = gsAPI?.appsScriptURL || 'https://script.google.com/macros/s/AKfycbzdK8HlTDc6yh6G_SfyhCx-hA9VXT4_VHKBKaj6CYvgjhf_m9qJ2pdagdFvEHoaYTTE_w/exec';
+            const API_URL = gsAPI.appsScriptURL;
             let allData = [];
             let table = null;
 
+            // Mapping berdasarkan struktur Spreadsheet Peminjaman Anda:
+            // 1: A = Email Address
+            // 2: B = Nama Kegiatan
+            // 3: C = Nama PIC
+            // 4: D = Nomor WhatsApp PIC
+            // 5: E = Tanggal Kegiatan
+            // 6: F = Tanggal Kembali
+            // 7: G = Surat Peminjaman
+            // 8: H = Waktu Mulai Kegiatan
+            // 9: I = Waktu Selesai Kegiatan
+            // 10: J = Keterangan
+            // 11: K = Status Kegiatan
             const UPDATE_FIELDS = {
-                            keterangan: 'Keterangan',
-                            statusKegiatan: 'Status Kegiatan',
-                            namaKegiatan: 'Nama Kegiatan',
-                            namaPIC: 'Nama PIC',
-                            nomorWhatsAppPIC: 'Nomor WhatsApp PIC',
-                            tanggalKegiatan: 'Tanggal Kegiatan',
-                            waktuMulaiKegiatan: 'Waktu Mulai Kegiatan',
-                            waktuSelesaiKegiatan: 'Waktu Selesai Kegiatan',
-                            suratPeminjaman: 'Surat Peminjaman'
-                        };
+                keterangan: 11,
+                statusKegiatan: 12
+            };
 
             function formatDate(dateStr) {
                 if (!dateStr) return '-';
@@ -183,84 +188,81 @@
                 return '<span class="badge-status badge-pending">' + status + '</span>';
             }
 
-            async function fetchAPI(params) {
-                            const url = new URL(API_URL);
-                            Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-                            // Cache busting untuk GET getData
-                            if (params.action === 'getData') {
-                                url.searchParams.set('_', Date.now().toString());
-                            }
-                            console.log('[Peminjaman] Request:', url.toString()); // DEBUG
-                            const res = await fetch(url);
-                            console.log('[Peminjaman] Response status:', res.status); // DEBUG
-                            const json = await res.json();
-                            console.log('[Peminjaman] Response data:', json); // DEBUG
-                            return json;
-                        }
+            async function fetchAPI(params, method = 'GET') {
+                try {
+                    if (method === 'GET' || params.action === 'getData') {
+                        const url = new URL(API_URL);
+                        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+                        url.searchParams.set('_', Date.now().toString());
+                        const res = await fetch(url);
+                        return await res.json();
+                    } else {
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(params)
+                        });
+                        return await res.json();
+                    }
+                } catch (e) {
+                    console.error('Fetch Error:', e);
+                    return { success: false, error: e.message };
+                }
+            }
 
             function mapRow(item) {
-                            const mapped = {
-                                rowId: item.rowId,
-                                timestamp: item.timestamp,
-                                emailAddress: item.emailAddress,
-                                namaKegiatan: item.namaKegiatan,
-                                namaPIC: item.namaPIC,
-                                nomorWhatsAppPIC: item.nomorWhatsAppPIC,
-                                tanggalKegiatan: item.tanggalKegiatan,
-                                suratPeminjaman: item.suratPeminjaman,
-                                waktuMulaiKegiatan: item.waktuMulaiKegiatan,
-                                waktuSelesaiKegiatan: item.waktuSelesaiKegiatan,
-                                keterangan: item.keterangan,
-                                statusKegiatan: item.statusKegiatan
-                            };
-                            console.log('[Peminjaman] mapRow:', {rowId: mapped.rowId, tanggalKegiatan: mapped.tanggalKegiatan, namaKegiatan: mapped.namaKegiatan}); // DEBUG
-                            return mapped;
-                        }
+                return {
+                    rowId: item.rowId,
+                    timestamp: item.timestamp,
+                    emailAddress: item.emailAddress,
+                    namaKegiatan: item.namaKegiatan,
+                    namaPIC: item.namaPIC,
+                    nomorWhatsAppPIC: item.nomorWhatsAppPIC,
+                    tanggalKegiatan: item.tanggalKegiatan,
+                    suratPeminjaman: item.suratPeminjaman,
+                    waktuMulaiKegiatan: item.waktuMulaiKegiatan,
+                    waktuSelesaiKegiatan: item.waktuSelesaiKegiatan,
+                    keterangan: item.keterangan,
+                    statusKegiatan: item.statusKegiatan
+                };
+            }
 
             async function loadData() {
-                                                    Swal.fire({ title: 'Memuat Data...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                                                    try {
-                                                        const result = await fetchAPI({ action: 'getData', module: 'peminjaman' });
-                                                        console.log('[Peminjaman] loadData result type:', Array.isArray(result) ? 'array' : typeof result, result); // DEBUG
-                                                        Swal.close();
-                                                        if (Array.isArray(result)) {
-                                                            allData = result.map(mapRow);
-                                                            console.log('[Peminjaman] Mapped allData:', allData.length, 'rows'); // DEBUG
-                                                            applyFilters();
-                                                        } else {
-                                                            throw new Error(result?.error || 'Gagal memuat data');
-                                                        }
-                                                    } catch (error) {
-                                                        Swal.close();
-                                                        console.error('Error loading peminjaman:', error);
-                                                        Swal.fire({ icon: 'error', title: 'Gagal Memuat', text: 'Tidak dapat memuat data dari Google Sheets: ' + error.message });
-                                                    }
-                                                }
+                Swal.fire({ title: 'Memuat Data...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                try {
+                    const result = await fetchAPI({ action: 'getData', module: 'peminjaman' });
+                    Swal.close();
+                    if (Array.isArray(result)) {
+                        allData = result.map(mapRow);
+                        applyFilters();
+                    } else {
+                        throw new Error(result?.error || 'Gagal memuat data');
+                    }
+                } catch (error) {
+                    Swal.close();
+                    Swal.fire({ icon: 'error', title: 'Gagal Memuat', text: 'Tidak dapat memuat data dari Google Sheets: ' + error.message });
+                }
+            }
 
             function applyFilters() {
-                            const status = document.getElementById('filterStatus').value;
-                            const start = document.getElementById('filterStartDate').value;
-                            const end = document.getElementById('filterEndDate').value;
-                            console.log('[Peminjaman] applyFilters:', {status, start, end, allDataCount: allData.length}); // DEBUG
+                const status = document.getElementById('filterStatus').value;
+                const start = document.getElementById('filterStartDate').value;
+                const end = document.getElementById('filterEndDate').value;
 
-                            let filtered = allData.filter(item => {
-                                if (status && (item.statusKegiatan || '').toLowerCase() !== status.toLowerCase()) return false;
-                                if (start && new Date(item.tanggalKegiatan) < new Date(start)) return false;
-                                if (end) {
-                                    const endDate = new Date(end);
-                                    endDate.setHours(23, 59, 59);
-                                    if (new Date(item.tanggalKegiatan) > endDate) return false;
-                                }
-                                return true;
-                            });
+                let filtered = allData.filter(item => {
+                    if (status && (item.statusKegiatan || '').toLowerCase() !== status.toLowerCase()) return false;
+                    if (start && new Date(item.tanggalKegiatan) < new Date(start)) return false;
+                    if (end) {
+                        const endDate = new Date(end);
+                        endDate.setHours(23, 59, 59);
+                        if (new Date(item.tanggalKegiatan) > endDate) return false;
+                    }
+                    return true;
+                });
 
-                            console.log('[Peminjaman] Filtered:', filtered.length, 'rows'); // DEBUG
-                            
-                            // Mengurutkan berdasarkan waktu data masuk/disubmit (terbaru di atas)
-                            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                            
-                            renderTable(filtered);
-                        }
+                filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                renderTable(filtered);
+            }
 
             function renderTable(data) {
                 const tbody = document.querySelector('#peminjamanTable tbody');
@@ -315,7 +317,6 @@
                 return allData.find(d => String(d.rowId) === String(rowId));
             }
 
-            // ─── Public API ───
             return {
                 async init() {
                     setDefaultDates();
@@ -387,13 +388,14 @@
 
                     if (!result.isConfirmed) return;
 
-                                        const success = await updateRow(item.rowId, result.value);
-                                        if (success) {
-                                            Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data diupdate', timer: 1500, showConfirmButton: false })
-                                                .then(() => window.location.reload());
-                                        } else {
-                                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menyimpan ke Google Sheets' });
-                                        }
+                    Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                    const success = await updateRow(item.rowId, result.value);
+                    if (success) {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Data diupdate', timer: 1500, showConfirmButton: false })
+                            .then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menyimpan ke Google Sheets' });
+                    }
                 },
 
                 async deleteData(rowId) {
@@ -411,7 +413,8 @@
 
                     if (!confirm.isConfirmed) return;
 
-                    const result = await fetchAPI({ action: 'deleteData', module: 'peminjaman', rowId });
+                    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                    const result = await fetchAPI({ action: 'deleteData', module: 'peminjaman', rowId }, 'POST');
                     if (result?.success) {
                         allData = allData.filter(d => String(d.rowId) !== String(rowId));
                         applyFilters();
@@ -424,34 +427,29 @@
             };
 
             function setDefaultDates() {
-                            // Jangan set default tanggal - biarkan kosong agar semua data tampil
-                            // User bisa filter manual jika perlu
-                            document.getElementById('filterStartDate').value = '';
-                            document.getElementById('filterEndDate').value = '';
-                        }
+                document.getElementById('filterStartDate').value = '';
+                document.getElementById('filterEndDate').value = '';
+            }
 
             async function updateRow(rowId, data) {
                 const updates = [];
                 for (const [key, value] of Object.entries(data)) {
-                    if (UPDATE_FIELDS[key] && value !== '') {
+                    if (UPDATE_FIELDS[key] !== undefined && value !== '') {
                         updates.push(fetchAPI({
                             action: 'updateData',
                             module: 'peminjaman',
-                            rowId,
-                            columnName: UPDATE_FIELDS[key],
+                            rowId: rowId,
+                            columnIndex: UPDATE_FIELDS[key],
                             newValue: value
-                        }));
+                        }, 'POST'));
                     }
                 }
                 if (updates.length === 0) return true;
                 const results = await Promise.all(updates);
-                return results.every(r => r?.success === true);
+                return results.every(r => r && r.success === true);
             }
         })();
 
-        // ─────────────────────────────────────────────
-        // GLOBAL HELPERS
-        // ─────────────────────────────────────────────
         function applyFilters() {
             PeminjamanManager.applyFilters();
         }
@@ -459,7 +457,7 @@
         function logout() {
             Swal.fire({ title: 'Logout?', text: 'Yakin keluar?', icon: 'question', showCancelButton: true, confirmButtonColor: '#002d5d', confirmButtonText: 'Ya' })
             .then(function(result) {
-                if (result.isConfirmed) {
+                if (result.isCsConfirmed || result.isConfirmed) {
                     localStorage.removeItem('admin_logged_in');
                     localStorage.removeItem('admin_username');
                     window.location.href = 'index.html';
@@ -467,9 +465,6 @@
             });
         }
 
-        // ─────────────────────────────────────────────
-        // INIT
-        // ─────────────────────────────────────────────
         document.addEventListener("DOMContentLoaded", function() {
             if (localStorage.getItem('admin_logged_in') !== 'true') {
                 window.location.href = 'index.html';
